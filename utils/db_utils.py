@@ -1,0 +1,49 @@
+import mysql.connector
+from mysql.connector import Error
+
+def connect_to_db():
+    try:
+        connection = mysql.connector.connect(
+            host="192.168.1.65",
+            port ="3306",
+            user="DBManager",
+            password="DBManager123*",
+            database="CustomerManagementDB"
+        )
+
+        if connection.is_connected():
+            print("Successfully connected to the database")
+            return connection
+        
+    except Error as e:
+        print(f"Error: {e}")
+        return None
+    
+def run_query(query, params=None):
+    conn = connect_to_db()
+
+    if not conn:
+        return None
+
+    try: 
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query, params or ())
+
+        # Only fetch if select query, otherwise return number of affected rows
+        if query.strip().lower().startswith("select"):
+            result = cursor.fetchall()
+        else:
+            result = cursor.rowcount 
+
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print(result)
+        return result
+    
+    except Error as e:
+        print(f"Error: {e}")
+        if conn.is_connected():
+            conn.rollback()
+        return None
