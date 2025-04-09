@@ -1,30 +1,9 @@
 import streamlit as st
-from utils.db_utils import run_query
+from utils.db_utils import run_query, query, DeleteQuery, UpdateQuery
 
 # -----------------------------
 # Default / Admin User Setup
 # -----------------------------
-
-# SQL Code to get Default Users, and Admin Users
-query = ''' 
-        SELECT UserID, UserName, UserEmail, TypeID 
-        FROM Users
-        WHERE TypeID IN (%s, %s)
-        '''
-
-# SQL Code to Change Status of User to Admin
-UpdateQuery = '''
-        UPDATE Users
-        SET TypeID = %s
-        WHERE UserID = %s;
-        '''
-
-# SQL Code to Delete Admin
-DeleteQuery =   '''
-                DELETE FROM Users
-                WHERE UserID = %s;
-                '''
-
 st.session_state.users = run_query(query, (1,2))
 
 # -----------------------------

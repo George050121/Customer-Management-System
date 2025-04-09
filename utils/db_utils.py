@@ -47,3 +47,23 @@ def run_query(query, params=None):
         if conn.is_connected():
             conn.rollback()
         return None
+    
+# SQL Code to get Default Users, and Admin Users
+query = ''' 
+        SELECT UserID, UserName, UserEmail, PhoneNumber, TypeID 
+        FROM Users
+        WHERE TypeID IN (%s, %s)
+        '''
+
+# SQL Code to Change Status of User to Admin
+UpdateQuery = '''
+        UPDATE Users
+        SET TypeID = %s
+        WHERE UserID = %s;
+        '''
+
+# SQL Code to Delete Admin
+DeleteQuery =   '''
+                DELETE FROM Users
+                WHERE UserID = %s;
+                '''
