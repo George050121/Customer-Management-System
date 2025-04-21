@@ -1,5 +1,6 @@
 # 1_home.py
 import streamlit as st
+import datetime
 
 # -----------------------------
 # Initialize session_state variables
@@ -29,11 +30,30 @@ if "users" not in st.session_state:
 if "pending_users" not in st.session_state:
     st.session_state.pending_users = []
 if "employees" not in st.session_state:
-    # Although the search function is not implemented, pre-define some employee data
+    # Pre-define some customer data corresponding to search page keywords
     st.session_state.employees = [
-        {"name": "John Doe", "email": "johndoe@example.com", "phone": "1112223333"},
-        {"name": "Jane Smith", "email": "janesmith@example.com", "phone": "4445556666"},
+        {
+            "customer_name": "Alice Johnson",
+            "residence_card_date": datetime.date(2025, 12, 31),
+            "company_name": "Acme Corporation",
+            "legal_representative": "Bob Smith"
+        },
+        {
+            "customer_name": "Charlie Brown",
+            "residence_card_date": datetime.date(2023, 5, 15),
+            "company_name": "Beta Industries",
+            "legal_representative": "Diane White"
+        },
+        {
+            "customer_name": "Emily Davis",
+            "residence_card_date": datetime.date(2024, 8, 20),
+            "company_name": "Gamma LLC",
+            "legal_representative": "Frank Miller"
+        }
     ]
+# 用于新增客户的标记，初始为 False
+if "add_customer_active" not in st.session_state:
+    st.session_state.add_customer_active = False
 
 # -----------------------------
 # Simulated SMS sending function
@@ -55,6 +75,19 @@ def logout():
         pass
 
 # -----------------------------
+# Direct jump to subpages based on sidebar selections
+# -----------------------------
+# 若选择了 Search Portal (Admin / Superadmin) 直接调用 ModifyPage
+if st.session_state.get("search_page_active", False):
+    from search_page import SearchPage
+    sp = SearchPage()
+    sp.display()
+    st.stop()
+
+elif st.sidebar.radio("Navigate to", []) == "dummy":  # 防止空值
+    pass
+
+# -----------------------------
 # Sidebar navigation design
 # -----------------------------
 st.sidebar.title("Navigation")
@@ -62,12 +95,13 @@ pages = ["Home", "Login", "Sign Up", "Employee Portal"]
 if st.session_state.logged_in:
     if st.session_state.user_info.get("role") in ["Admin", "Super Admin"]:
         pages.append("Admin Panel")
+        pages.append("Search Portal (Admin / Superadmin)")
     if st.session_state.user_info.get("role") == "Super Admin":
         pages.append("Super Admin Panel")
 page = st.sidebar.radio("Navigate to", pages)
 
 # -----------------------------
-# Home page
+# Page: Home
 # -----------------------------
 if page == "Home":
     st.title("Welcome to the Company Portal")
@@ -80,7 +114,7 @@ if page == "Home":
         st.write("Please use the sidebar to login or sign up.")
 
 # -----------------------------
-# Login page
+# Page: Login
 # -----------------------------
 elif page == "Login":
     st.title("Login")
@@ -96,7 +130,7 @@ elif page == "Login":
             st.error("Incorrect username or password.")
 
 # -----------------------------
-# Sign Up page
+# Page: Sign Up
 # -----------------------------
 elif page == "Sign Up":
     st.title("Sign Up")
@@ -121,26 +155,31 @@ elif page == "Sign Up":
             st.success("Registration successful! Your account is pending admin approval.")
 
 # -----------------------------
-# Employee Portal (button layout demonstration only, no search function implemented)
+# Page: Employee Portal
 # -----------------------------
 elif page == "Employee Portal":
     if not st.session_state.logged_in:
         st.error("Please log in to access the Employee Portal.")
     else:
         st.title("Employee Portal")
-        st.write("This page is for employee operations (e.g., search). Currently, it only demonstrates button layout.")
+        st.write("This page is for employee operations (e.g., search). Please choose an operation:")
+        if st.button("Search Customer Info"):
+            st.session_state.search_page_active = True
+            try:
+                st.experimental_rerun()
+            except AttributeError:
+                pass
         if st.button("Employee Operation Example Button"):
             st.info("Button clicked, but functionality not yet implemented.")
 
 # -----------------------------
-# Admin Panel
+# Page: Admin Panel
 # -----------------------------
 elif page == "Admin Panel":
     if not st.session_state.logged_in or st.session_state.user_info.get("role") not in ["Admin", "Super Admin"]:
         st.error("You do not have permission to access this page.")
     else:
         st.title("Admin Panel")
-        # Module: Pending Registration Approvals
         st.write("### Pending Registration Approvals")
         if st.session_state.pending_users:
             for idx, pending in enumerate(st.session_state.pending_users):
@@ -155,7 +194,6 @@ elif page == "Admin Panel":
                         pass
         else:
             st.write("No pending users.")
-        # New Module: Display all Default Users with option to delete account
         st.write("### Approved Default User Accounts")
         default_users = [user for user in st.session_state.users.values() if user["role"] == "Default User"]
         if default_users:
@@ -172,14 +210,13 @@ elif page == "Admin Panel":
             st.write("No Default Users available.")
 
 # -----------------------------
-# Super Admin Panel
+# Page: Super Admin Panel
 # -----------------------------
 elif page == "Super Admin Panel":
     if not st.session_state.logged_in or st.session_state.user_info.get("role") != "Super Admin":
         st.error("You do not have permission to access this page.")
     else:
         st.title("Super Admin Panel")
-        # Module 1: Upgrade Default Users to Admin
         st.write("### Upgrade Default Users to Admin")
         default_users = [user for user in st.session_state.users.values() if user["role"] == "Default User"]
         if default_users:
@@ -194,7 +231,6 @@ elif page == "Super Admin Panel":
                         pass
         else:
             st.write("No Default Users available for upgrade.")
-        # Module 2: Display all Admin accounts with options to demote or delete
         st.write("### Admin Account Operations")
         admins = [user for user in st.session_state.users.values() if user["role"] == "Admin"]
         if admins:
@@ -216,3 +252,15 @@ elif page == "Super Admin Panel":
                         pass
         else:
             st.write("No Admin users available.")
+
+# -----------------------------
+# Page: Search Portal (Admin / Superadmin)
+# -----------------------------
+elif page == "Search Portal (Admin / Superadmin)":
+    if not st.session_state.logged_in or st.session_state.user_info.get("role") not in ["Admin", "Super Admin"]:
+        st.error("You do not have permission to access this page.")
+    else:
+        from modify_page import ModifyPage
+        mp = ModifyPage()
+        mp.display()
+        st.stop()
