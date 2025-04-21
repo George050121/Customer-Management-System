@@ -46,9 +46,9 @@ st.title("Welcome to the Company Portal")
 if st.session_state.logged_in:
     st.sidebar.page_link('main.py', label='Home')
     st.sidebar.page_link('pages/Employee_Portal.py', label='Employee Portal')
-    if st.session_state.user_info.get("role") in ["Admin", "Super Admin"]:
+    if st.session_state.user_info.get("TypeID") in [2, 3]:
         st.sidebar.page_link('pages/Admin_Panel.py', label='Admin Panel')
-    if st.session_state.user_info.get("role") == "Super Admin":
+    if st.session_state.user_info.get("TypeID") == 3:
         st.sidebar.page_link('pages/Super_Admin_Panel.py', label='Super Admin Panel')
 else:
     st.sidebar.page_link('main.py', label='Home')
@@ -71,7 +71,7 @@ def logout():
 # Home page
 # -----------------------------
 if st.session_state.logged_in:
-    st.write(f"Current logged in user: **{st.session_state.user_info.get('username', '')}** "
+    st.write(f"Current logged in user: **{st.session_state.user_info.get('UserName',)}** "
                 f"({st.session_state.user_info.get('role', '')})")
     if "toast_message_logged_in" in st.session_state:
         st.toast(st.session_state["toast_message_logged_in"])

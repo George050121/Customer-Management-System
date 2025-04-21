@@ -12,9 +12,9 @@ st.session_state.users = run_query(query, (1,2))
 if st.session_state.logged_in:
     st.sidebar.page_link('main.py', label='Home')
     st.sidebar.page_link('pages/Employee_Portal.py', label='Employee Portal')
-    if st.session_state.user_info.get("role") in ["Admin", "Super Admin"]:
+    if st.session_state.user_info.get("TypeID") in [2, 3]:
         st.sidebar.page_link('pages/Admin_Panel.py', label='Admin Panel')
-    if st.session_state.user_info.get("role") == "Super Admin":
+    if st.session_state.user_info.get("TypeID") == 3:
         st.sidebar.page_link('pages/Super_Admin_Panel.py', label='Super Admin Panel')
 # If not logged in and trying to access this page get redirected to login
 else:
@@ -23,7 +23,7 @@ else:
 # -----------------------------
 # Super Admin Panel
 # -----------------------------
-if not st.session_state.logged_in or st.session_state.user_info.get("role") != "Super Admin":
+if not st.session_state.logged_in or st.session_state.user_info.get("TypeID") != 3:
     st.error("You do not have permission to access this page.")
 else:
     st.title("Super Admin Panel")

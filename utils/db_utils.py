@@ -1,10 +1,14 @@
 import mysql.connector
 from mysql.connector import Error
 
+# -----------------------------
+# Contains all functions that interact with the DB
+# -----------------------------
+
 def connect_to_db():
     try:
         connection = mysql.connector.connect(
-            host="192.168.1.65",
+            host="10.138.20.133",
             port ="3306",
             user="DBManager",
             password="DBManager123*",
@@ -67,3 +71,14 @@ DeleteQuery =   '''
                 DELETE FROM Users
                 WHERE UserID = %s;
                 '''
+
+AddUserQuery =  '''
+                INSERT INTO Users (UserName, UserEmail, PhoneNumber, UserPassword, TypeID)
+                VALUES (%s, %s, %s, %s, 4)
+                '''
+
+GetUsernamePasswordQuery =  '''
+                            SELECT UserName, UserPassword, TypeID
+                            FROM Users
+                            WHERE UserName = %s
+                            '''
